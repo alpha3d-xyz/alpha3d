@@ -78,9 +78,13 @@ const init = () => {
 const loadStl = () => {
   loading.value = true;
   const loader = new STLLoader();
+  
+  console.log('[StlViewer] Loading STL from URL:', props.fileUrl);
+  
   loader.load(
     props.fileUrl,
     (geometry) => {
+      console.log('[StlViewer] STL loaded successfully', geometry);
       // Center geometry
       geometry.center();
       geometry.computeBoundingBox();
@@ -118,10 +122,12 @@ const loadStl = () => {
     },
     (xhr) => {
       // Progress
-      // console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+      const progress = (xhr.loaded / xhr.total * 100);
+      console.log(`[StlViewer] Loading progress: ${progress.toFixed(0)}%`);
     },
     (error) => {
-      console.error('An error happened loading the STL', error);
+      console.error('[StlViewer] Error loading STL:', error);
+      console.error('[StlViewer] File URL was:', props.fileUrl);
       loading.value = false;
     }
   );

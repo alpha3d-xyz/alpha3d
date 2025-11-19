@@ -48,6 +48,11 @@
       <div v-if="fileStore.currentFile" class="result-section">
         <h2 class="section-title">Analysis Results</h2>
         
+        <!-- Debug Info -->
+        <div v-if="!fileUrl" style="padding: 1rem; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; margin-bottom: 1rem;">
+          ⚠️ Debug: fileUrl is not set. This should not happen.
+        </div>
+        
         <div v-if="fileUrl" class="viewer-section card">
           <StlViewer :fileUrl="fileUrl" />
         </div>
@@ -257,6 +262,9 @@ const processFile = async (file) => {
   // Create object URL for viewer
   if (fileUrl.value) URL.revokeObjectURL(fileUrl.value);
   fileUrl.value = URL.createObjectURL(file);
+  
+  console.log('[Upload] Created blob URL for viewer:', fileUrl.value);
+  console.log('[Upload] File details:', { name: file.name, size: file.size, type: file.type });
   
   await fileStore.uploadFile(file);
 };

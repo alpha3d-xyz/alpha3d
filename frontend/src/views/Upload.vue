@@ -48,6 +48,10 @@
       <div v-if="fileStore.currentFile" class="result-section">
         <h2 class="section-title">Analysis Results</h2>
         
+        <div v-if="fileUrl" class="viewer-section card">
+          <StlViewer :fileUrl="fileUrl" />
+        </div>
+
         <div class="result-grid">
           <div class="card result-card">
             <div class="card-header">
@@ -85,7 +89,7 @@
         </div>
         
         <div class="actions-row">
-          <button @click="fileStore.clearFile" class="btn btn-secondary">Analyze Another File</button>
+          <button @click="clearFile" class="btn btn-secondary">Analyze Another File</button>
         </div>
 
         <!-- Quoting Section -->
@@ -150,6 +154,7 @@ import { ref, reactive } from 'vue';
 import { useFileStore } from '../stores/files';
 import { apiClient } from '../lib/apiClient';
 import { useRouter } from 'vue-router';
+import StlViewer from '../components/StlViewer.vue';
 
 const router = useRouter();
 const fileStore = useFileStore();
@@ -157,6 +162,7 @@ const fileInput = ref(null);
 const calculating = ref(false);
 const ordering = ref(false);
 const quoteResult = ref(null);
+const fileUrl = ref(null);
 
 const formatNumber = (num) => {
   return new Intl.NumberFormat('en-US').format(num);
@@ -167,6 +173,15 @@ const quoteForm = reactive({
   color: 'White',
   infill: 20
 });
+
+const clearFile = () => {
+  fileStore.clearFile();
+  if (fileUrl.value) {
+    URL.revokeObjectURL(fileUrl.value);
+    fileUrl.value = null;
+  }
+  quoteResult.value = null;
+};
 
 const calculateQuote = async () => {
   if (!fileStore.currentFile) return;
@@ -238,6 +253,11 @@ const processFile = async (file) => {
     alert('Please upload a valid STL file (.stl)');
     return;
   }
+  
+  // Create object URL for viewer
+  if (fileUrl.value) URL.revokeObjectURL(fileUrl.value);
+  fileUrl.value = URL.createObjectURL(file);
+  
   await fileStore.uploadFile(file);
 };
 </script>
@@ -411,6 +431,13 @@ const processFile = async (file) => {
 .actions-row {
   display: flex;
   justify-content: center;
+}
+
+.viewer-section {
+  margin-bottom: 2rem;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
 }
 
 @media (max-width: 640px) {

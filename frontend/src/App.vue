@@ -7,6 +7,7 @@
           <template v-if="authStore.isAuthenticated">
             <router-link to="/" class="nav-item">{{ $t('nav.upload') }}</router-link>
             <router-link to="/orders" class="nav-item">{{ $t('nav.orders') }}</router-link>
+            <router-link v-if="authStore.isAdmin" to="/admin" class="nav-item">{{ $t('nav.admin') }}</router-link>
             <span class="user-email">{{ authStore.user?.email }}</span>
             <button @click="handleLogout" class="btn btn-outline btn-sm">{{ $t('nav.logout') }}</button>
           </template>

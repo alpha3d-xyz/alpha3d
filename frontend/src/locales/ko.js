@@ -2,6 +2,7 @@ export default {
   nav: {
     upload: '업로드',
     orders: '주문 내역',
+    admin: '관리자',
     login: '로그인',
     signup: '회원가입',
     logout: '로그아웃'

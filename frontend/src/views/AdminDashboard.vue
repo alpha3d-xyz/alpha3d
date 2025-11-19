@@ -17,8 +17,16 @@
         
         <div class="order-details">
           <div class="detail-row">
-            <span class="label">User ID:</span>
-            <span class="value">{{ order.user_id }}</span>
+            <span class="label">User:</span>
+            <span class="value">{{ order.user_email }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Material:</span>
+            <span class="value">{{ order.material }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Cost:</span>
+            <span class="value">${{ order.estimated_cost.toFixed(2) }}</span>
           </div>
           <div class="detail-row">
             <span class="label">Status:</span>

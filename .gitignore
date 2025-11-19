@@ -11,10 +11,15 @@ Thumbs.db
 /target/
 **/*.rs.bk
 
+# for stl file uploads
+/test_uploads/*.stl
+
 # Node.js / Frontend
 node_modules/
 dist/
 npm-debug.log*
+playwright-report/
+test-results/
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*

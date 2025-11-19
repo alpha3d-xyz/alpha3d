@@ -10,6 +10,16 @@
 - **Secure Auth**: JWT-based authentication with Argon2 password hashing.
 - **Cloud Native**: Designed for Google Cloud Platform (Cloud Run, Cloud SQL, Cloud Storage).
 
+## Implementation Status
+
+- [x] **User Authentication**: JWT-based Signup & Login.
+- [x] **File Upload**: Support for STL files up to 100MB with automatic geometry analysis.
+- [x] **Quoting Engine**: Instant price calculation based on material (PLA, ABS, Resin), color, and infill.
+- [x] **Order System**: Complete flow from Quote to Order creation.
+- [x] **Infrastructure**: Docker Compose setup for local dev, Nginx proxy configuration.
+- [ ] **Payment Integration**: (Planned) Stripe/PayPal integration.
+- [ ] **Admin Dashboard**: (Planned) Order management interface.
+
 ## Documentation
 
 - [Technical Specification](docs/TECHNICAL_SPEC.md)

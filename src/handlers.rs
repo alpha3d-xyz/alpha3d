@@ -1,6 +1,7 @@
 pub mod files;
 pub mod quoting;
 pub mod orders;
+pub mod admin;
 
 use axum::{
     extract::{State, Json},

@@ -12,11 +12,13 @@
 
 ## Implementation Status
 
-- [x] **User Authentication**: JWT-based Signup & Login.
+- [x] **User Authentication**: JWT-based Signup & Login with Argon2 password hashing.
 - [x] **File Upload**: Support for STL files up to 100MB with automatic geometry analysis.
+- [x] **3D Viewer**: Three.js-based STL viewer with rotation, zoom, and auto-positioning.
 - [x] **Quoting Engine**: Instant price calculation based on material (PLA, ABS, Resin), color, and infill.
-- [x] **Order System**: Complete flow from Quote to Order creation.
+- [x] **Order System**: Complete flow from Quote to Order creation with shipping address.
 - [x] **Infrastructure**: Docker Compose setup for local dev, Nginx proxy configuration.
+- [x] **Testing**: Unit tests (Rust), Integration tests (Axum), E2E tests (Playwright).
 - [ ] **Payment Integration**: (Planned) Stripe/PayPal integration.
 - [ ] **Admin Dashboard**: (Planned) Order management interface.
 
@@ -180,22 +182,24 @@ See `deploy/gcp/README.md` for the full step-by-step guide, including Terraform 
 
 ### Quoting System
 
-- [ ] **Pricing Logic**: Material cost + Machine time + Markup
-- [ ] **Quote Generation**: API to calculate price based on analysis
-- [x] **Database Schema**: Quotes table (Schema created, Logic pending)
+- [x] **Pricing Logic**: Material cost + Machine time + Markup
+- [x] **Quote Generation**: API to calculate price based on analysis
+- [x] **Database Schema**: Quotes table with material, color, infill metadata
 
 ### Order Management
 
-- [ ] **Order Creation**: Convert Quote to Order
-- [ ] **Order Status**: Tracking (Paid, Printing, Shipped)
-- [x] **Database Schema**: Orders table (Schema created, Logic pending)
+- [x] **Order Creation**: Convert Quote to Order with shipping address
+- [x] **Order Status**: Status tracking (PENDING, PAID, PRINTING, SHIPPED, CANCELLED)
+- [x] **Database Schema**: Orders table with quote references and JSONB metadata
 
 ### Frontend Features
 
-- [ ] **3D Viewer**: Three.js integration for STL preview
-- [ ] **Upload Interface**: Drag & drop file upload
-- [ ] **Quote Display**: Real-time price estimation
-- [ ] **Order History**: User dashboard
+- [x] **3D Viewer**: Three.js integration with OrbitControls for STL preview
+- [x] **Upload Interface**: Drag & drop file upload with instant viewer display
+- [x] **Quote Display**: Real-time price estimation with material/color/infill options
+- [x] **Order Placement**: Convert quotes to orders with shipping address
+- [ ] **Order History**: User dashboard (Planned)
+- [ ] **Payment Integration**: Stripe/PayPal checkout (Planned)
 
 ## Acceptance Tests
 

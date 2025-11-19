@@ -87,6 +87,46 @@ npm run dev
 
 - UI: `http://localhost:5173`
 
+### 4. Running Tests
+
+#### Backend Tests
+
+```bash
+# Run all tests (unit + integration)
+cargo test
+
+# Run specific test suite
+cargo test --test acceptance_orders
+cargo test --test api_auth
+```
+
+#### Frontend E2E Tests
+
+```bash
+cd frontend
+
+# Install Playwright browsers (first time only)
+npx playwright install chromium
+
+# Run E2E tests
+npm run test:e2e
+
+# Run tests in UI mode
+npx playwright test --ui
+
+# Run specific test file
+npx playwright test tests/stl-viewer.spec.js
+```
+
+**E2E Test Coverage:**
+
+- User authentication flow (signup/login)
+- STL file upload and immediate 3D viewer display
+- 3D model rendering with Three.js
+- Interactive controls (rotation, zoom)
+- Quote calculation and order placement
+- File cleanup and viewer reset
+
 ## Docker Compose workflow
 
 Build and run both services with one command:

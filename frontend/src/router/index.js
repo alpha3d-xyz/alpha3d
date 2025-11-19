@@ -2,12 +2,14 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../views/Login.vue';
 import Signup from '../views/Signup.vue';
 import Upload from '../views/Upload.vue';
+import Orders from '../views/Orders.vue';
 import { useAuthStore } from '../stores/auth';
 
 const routes = [
   { path: '/login', component: Login },
   { path: '/signup', component: Signup },
   { path: '/', component: Upload, meta: { requiresAuth: true } },
+  { path: '/orders', component: Orders, meta: { requiresAuth: true } },
 ];
 
 const router = createRouter({

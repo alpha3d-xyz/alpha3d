@@ -6,6 +6,7 @@
         <nav class="nav-links">
           <template v-if="authStore.isAuthenticated">
             <router-link to="/" class="nav-item">Upload</router-link>
+            <router-link to="/orders" class="nav-item">Orders</router-link>
             <span class="user-email">{{ authStore.user?.email }}</span>
             <button @click="handleLogout" class="btn btn-outline btn-sm">Logout</button>
           </template>

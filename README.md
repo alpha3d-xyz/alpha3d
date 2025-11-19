@@ -1,4 +1,4 @@
-# Vue + Axum + Utoipa Starter
+# Alpha3D
 
 A minimal full-stack template that pairs a Vue 3 + Vite frontend with an Axum backend. OpenAPI documentation is generated automatically via [Utoipa](https://crates.io/crates/utoipa) and served with Swagger UI so you can explore the API immediately.
 
@@ -95,10 +95,10 @@ This repo ships with everything you need to run both services on Cloud Run:
 Quick start after authenticating `gcloud` and creating an Artifact Registry repository:
 
 ```bash
-BACKEND_URL="https://vue-axum-backend-xxxxx-asia-northeast3.a.run.app"
+BACKEND_URL="https://alpha3d-backend-xxxxx-asia-northeast3.a.run.app"
 gcloud builds submit \
   --config deploy/gcp/cloudbuild.yaml \
-  --substitutions=_REGION=asia-northeast3,_REPOSITORY=vue-axum-utopia,_BACKEND_BASE_URL=$BACKEND_URL
+  --substitutions=_REGION=asia-northeast3,_REPOSITORY=alpha3d,_BACKEND_BASE_URL=$BACKEND_URL
 ```
 
 See `deploy/gcp/README.md` for the full step-by-step guide, including Terraform usage.
@@ -108,3 +108,7 @@ See `deploy/gcp/README.md` for the full step-by-step guide, including Terraform 
 - Add persistence (e.g., SQLx, Prisma, or SurrealDB)
 - Configure infrastructure (Docker, fly.io, etc.)
 - Extend OpenAPI schemas as you introduce new resources
+
+## Acceptance Tests
+
+See [docs/acceptance_tests.md](docs/acceptance_tests.md) for instructions on how to run acceptance tests locally and against GCP.

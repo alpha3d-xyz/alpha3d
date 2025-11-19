@@ -21,13 +21,13 @@ variable "frontend_image" {
 variable "backend_service_name" {
   description = "Cloud Run service name for the backend"
   type        = string
-  default     = "vue-axum-backend"
+  default     = "alpha3d-backend"
 }
 
 variable "frontend_service_name" {
   description = "Cloud Run service name for the frontend"
   type        = string
-  default     = "vue-axum-frontend"
+  default     = "alpha3d-frontend"
 }
 
 variable "backend_min_instances" {

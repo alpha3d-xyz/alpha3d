@@ -1,22 +1,39 @@
 services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=alpha3d
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   backend:
     build:
       context: .
       dockerfile: Dockerfile.backend
-    image: vue-axum-backend:dev
+    image: alpha3d-backend:dev
     environment:
       - RUST_LOG=info
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/alpha3d
     ports:
       - "3000:3000"
+    depends_on:
+      - db
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    image: vue-axum-frontend:dev
+    image: alpha3d-frontend:dev
     depends_on:
       - backend
     environment:
       - BACKEND_BASE_URL=http://backend:3000
     ports:
       - "5173:8080"
+
+volumes:
+  postgres_data:

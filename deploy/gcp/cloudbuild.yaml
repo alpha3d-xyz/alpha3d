@@ -1,8 +1,8 @@
 substitutions:
   _REGION: asia-northeast3
-  _REPOSITORY: vue-axum-utopia
-  _BACKEND_SERVICE: vue-axum-backend
-  _FRONTEND_SERVICE: vue-axum-frontend
+  _REPOSITORY: alpha3d
+  _BACKEND_SERVICE: alpha3d-backend
+  _FRONTEND_SERVICE: alpha3d-frontend
   _BACKEND_BASE_URL: https://your-backend-url.a.run.app
 
 steps:

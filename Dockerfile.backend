@@ -14,7 +14,7 @@ RUN useradd --system --create-home appuser \
     && apt-get install -y --no-install-recommends ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /app/target/release/vue-axum_utopia /usr/local/bin/app
+COPY --from=builder /app/target/release/alpha3d /usr/local/bin/app
 USER appuser
 ENV RUST_LOG=info
 EXPOSE 3000

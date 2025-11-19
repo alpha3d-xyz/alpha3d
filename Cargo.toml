@@ -1,7 +1,15 @@
 [package]
-name = "vue-axum_utopia"
+name = "alpha3d"
 version = "0.1.0"
 edition = "2024"
+
+[lib]
+name = "alpha3d"
+path = "src/lib.rs"
+
+[[bin]]
+name = "alpha3d"
+path = "src/main.rs"
 
 [dependencies]
 axum = { version = "0.7", features = ["macros", "json"] }
@@ -13,8 +21,17 @@ tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 utoipa = { version = "4.2", features = ["axum_extras"] }
 utoipa-swagger-ui = { version = "7", features = ["axum"] }
 tracing = "0.1"
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "uuid", "chrono", "macros"] }
+argon2 = "0.5"
+jsonwebtoken = "9"
+uuid = { version = "1", features = ["serde", "v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+dotenvy = "0.15"
+validator = { version = "0.16", features = ["derive"] }
 
 [dev-dependencies]
 reqwest = { version = "0.11", features = ["json"] }
 tokio = { version = "1", features = ["full"] }
 anyhow = "1.0"
+tower = { version = "0.4", features = ["util"] }
+http-body-util = "0.1"

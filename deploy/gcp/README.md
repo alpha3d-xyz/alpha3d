@@ -8,7 +8,7 @@ Two options are provided to run the starter on Google Cloud Platform:
 ## Prerequisites
 
 - `gcloud` CLI authenticated against your project (`gcloud auth application-default login`).
-- Artifact Registry repository for the images (e.g., `REGION-docker.pkg.dev/PROJECT/vue-axum-utopia`).
+- Artifact Registry repository for the images (e.g., `REGION-docker.pkg.dev/PROJECT/alpha3d`).
 - Enabled APIs: `run.googleapis.com`, `artifactregistry.googleapis.com`, `cloudbuild.googleapis.com`.
 
 ## Cloud Build workflow
@@ -22,11 +22,11 @@ Two options are provided to run the starter on Google Cloud Platform:
 
 ```bash
 PROJECT_ID="your-project"
-BACKEND_URL="https://vue-axum-backend-xxxxx-asia-northeast3.a.run.app"
+BACKEND_URL="https://alpha3d-backend-xxxxx-asia-northeast3.a.run.app"
 gcloud builds submit \
   --project "$PROJECT_ID" \
   --config deploy/gcp/cloudbuild.yaml \
-  --substitutions=_REGION=asia-northeast3,_REPOSITORY=vue-axum-utopia,_BACKEND_BASE_URL=$BACKEND_URL
+  --substitutions=_REGION=asia-northeast3,_REPOSITORY=alpha3d,_BACKEND_BASE_URL=$BACKEND_URL
 ```
 
 The pipeline builds & pushes both images, then deploys two Cloud Run services with unauthenticated access enabled. The frontend service receives the `BACKEND_BASE_URL` env var so its Nginx proxy can forward SPA requests to the backend.

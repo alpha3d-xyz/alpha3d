@@ -1,0 +1,14 @@
+/Users/yezune/ws/vue-axum_utopia/target/debug/deps/utoipa_swagger_ui-ec09e72dd2bc0b74.d: /Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-swagger-ui-7.1.0/src/lib.rs /Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-swagger-ui-7.1.0/src/actix.rs /Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-swagger-ui-7.1.0/src/axum.rs /Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-swagger-ui-7.1.0/src/oauth.rs /Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-swagger-ui-7.1.0/src/rocket.rs /Users/yezune/ws/vue-axum_utopia/target/debug/build/utoipa-swagger-ui-46b521fdda5857de/out/embed.rs
+
+/Users/yezune/ws/vue-axum_utopia/target/debug/deps/libutoipa_swagger_ui-ec09e72dd2bc0b74.rlib: /Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-swagger-ui-7.1.0/src/lib.rs /Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-swagger-ui-7.1.0/src/actix.rs /Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-swagger-ui-7.1.0/src/axum.rs /Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-swagger-ui-7.1.0/src/oauth.rs /Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-swagger-ui-7.1.0/src/rocket.rs /Users/yezune/ws/vue-axum_utopia/target/debug/build/utoipa-swagger-ui-46b521fdda5857de/out/embed.rs
+
+/Users/yezune/ws/vue-axum_utopia/target/debug/deps/libutoipa_swagger_ui-ec09e72dd2bc0b74.rmeta: /Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-swagger-ui-7.1.0/src/lib.rs /Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-swagger-ui-7.1.0/src/actix.rs /Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-swagger-ui-7.1.0/src/axum.rs /Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-swagger-ui-7.1.0/src/oauth.rs /Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-swagger-ui-7.1.0/src/rocket.rs /Users/yezune/ws/vue-axum_utopia/target/debug/build/utoipa-swagger-ui-46b521fdda5857de/out/embed.rs
+
+/Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-swagger-ui-7.1.0/src/lib.rs:
+/Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-swagger-ui-7.1.0/src/actix.rs:
+/Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-swagger-ui-7.1.0/src/axum.rs:
+/Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-swagger-ui-7.1.0/src/oauth.rs:
+/Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-swagger-ui-7.1.0/src/rocket.rs:
+/Users/yezune/ws/vue-axum_utopia/target/debug/build/utoipa-swagger-ui-46b521fdda5857de/out/embed.rs:
+
+# env-dep:OUT_DIR=/Users/yezune/ws/vue-axum_utopia/target/debug/build/utoipa-swagger-ui-46b521fdda5857de/out

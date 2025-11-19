@@ -1,0 +1,1 @@
+fn(Extension<User>) -> impl std::future::Future<Output = impl IntoResponse> {me}: Handler<_, _>

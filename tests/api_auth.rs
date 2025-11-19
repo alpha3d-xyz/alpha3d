@@ -1,5 +1,6 @@
-use alpha3d::create_app;
+use alpha3d::{create_app, AppState};
 use alpha3d::models::{AuthResponse, User};
+use alpha3d::storage::LocalStorage;
 use axum::{
     body::Body,
     http::{Request, StatusCode},
@@ -9,6 +10,7 @@ use sqlx::PgPool;
 use serde_json::json;
 use uuid::Uuid;
 use http_body_util::BodyExt; // for collect
+use std::sync::Arc;
 
 // Helper to create a test pool
 async fn get_test_pool() -> PgPool {
@@ -24,7 +26,9 @@ async fn get_test_pool() -> PgPool {
 #[tokio::test]
 async fn test_signup_and_login() {
     let pool = get_test_pool().await;
-    let app = create_app(pool.clone());
+    let storage = Arc::new(LocalStorage::new("./test_uploads"));
+    let state = AppState { pool: pool.clone(), storage };
+    let app = create_app(state);
 
     let email = format!("test_{}@example.com", Uuid::new_v4());
     let password = "password123";

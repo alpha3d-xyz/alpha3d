@@ -1,25 +1,38 @@
 # Alpha3D
 
-A minimal full-stack template that pairs a Vue 3 + Vite frontend with an Axum backend. OpenAPI documentation is generated automatically via [Utoipa](https://crates.io/crates/utoipa) and served with Swagger UI so you can explore the API immediately.
+**Alpha3D** is a next-generation 3D prototyping platform designed for design students and early-stage startups. It provides instant AI-based quoting and 3D printing ordering services, leveraging Rust's high performance for real-time model analysis.
+
+## Key Features
+
+- **Instant Quote**: Real-time price calculation based on volume, material, and print time.
+- **3D Model Analysis**: Automatic calculation of volume, surface area, and bounding box for STL/OBJ files.
+- **Smart Viewer**: Web-based 3D viewer with auto-rotation and size visualization.
+- **Secure Auth**: JWT-based authentication with Argon2 password hashing.
+- **Cloud Native**: Designed for Google Cloud Platform (Cloud Run, Cloud SQL, Cloud Storage).
+
+## Documentation
+
+- [Technical Specification](docs/TECHNICAL_SPEC.md)
+- [Git Branch Strategy](docs/git-branch-strategy.md)
+- [Request for Specification](docs/RFS.md)
 
 ## Project layout
 
 ```txt
 .
 ├── Cargo.toml
-├── src/
-│   └── main.rs          # Axum server + OpenAPI doc generation
-├── Dockerfile.backend   # Multi-stage build for the Axum API
-├── docker-compose.yml   # Spins up backend + frontend together
-├── frontend/
-│   ├── package.json     # Vue + Vite project
-│   ├── Dockerfile       # Builds the static Vue bundle + nginx image
-│   └── nginx.conf       # Proxies /api requests to the backend
-│   └── src/
-│       ├── App.vue
-│       └── components/
-│           └── GreetingCard.vue
-└── README.md
+├── src/                 # Rust Backend (Axum)
+│   ├── main.rs
+│   ├── lib.rs
+│   ├── quoting.rs       # Quoting Logic
+│   ├── analysis.rs      # Geometry Analysis
+│   ├── handlers/        # API Handlers
+│   └── models.rs        # Database Models
+├── tests/               # Integration & Acceptance Tests
+├── frontend/            # Vue 3 + Vite Frontend
+├── migrations/          # SQLx Database Migrations
+├── docs/                # Project Documentation
+└── docker-compose.yml   # Local Development Environment
 ```
 
 ## Requirements
@@ -27,23 +40,34 @@ A minimal full-stack template that pairs a Vue 3 + Vite frontend with an Axum ba
 - Rust (1.80+) with `cargo`
 - Node.js 18+ with npm
 - Docker 24+ (optional, for containerized workflow)
-  - The Docker builder image pins `rustlang/rust:nightly` so Cargo can compile the Edition 2024 crate.
-- gcloud CLI (optional, for GCP deployment)
+- PostgreSQL 15+ (if running locally without Docker)
 
-## Backend (Axum + Utoipa)
+## Getting Started
+
+### 1. Database Setup
 
 ```bash
-# from repo root
-cargo run
+# Start Postgres via Docker
+docker compose up -d db
+
+# Run Migrations
+sqlx migrate run
 ```
 
-- Serves REST endpoints at `http://localhost:3000`
-- Swagger UI + OpenAPI JSON available at `http://localhost:3000/docs`
-- Sample routes
-  - `GET /api/greeting`
-  - `POST /api/echo`
+### 2. Backend (Axum)
 
-## Frontend (Vue + Vite)
+```bash
+# Run locally
+cargo run
+
+# Run Tests
+cargo test
+```
+
+- API: `http://localhost:3000`
+- Swagger UI: `http://localhost:3000/swagger-ui`
+
+### 3. Frontend (Vue + Vite)
 
 ```bash
 cd frontend
@@ -51,21 +75,7 @@ npm install
 npm run dev
 ```
 
-- Dev server runs at `http://localhost:5173`
-- Requests to `/api/*` are proxied to the Axum server, so both apps can run concurrently
-
-For a production build:
-
-```bash
-cd frontend
-npm run build
-```
-
-## Recommended workflow
-
-1. Start the Rust API with `cargo run`
-2. Start the Vue dev server with `npm run dev` inside `frontend`
-3. Visit the UI at `http://localhost:5173` and the API docs at `http://localhost:3000/docs`
+- UI: `http://localhost:5173`
 
 ## Docker Compose workflow
 
@@ -73,16 +83,6 @@ Build and run both services with one command:
 
 ```bash
 docker compose up --build
-```
-
-- Backend is available at `http://localhost:3000`
-- Frontend (Nginx) serves the built assets at `http://localhost:5173`
-- The Nginx config proxies `/api`, `/docs`, and `/api-doc` requests to the backend container so the SPA works without extra environment wiring.
-
-To tear everything down:
-
-```bash
-docker compose down
 ```
 
 ## Deploying to Google Cloud Run

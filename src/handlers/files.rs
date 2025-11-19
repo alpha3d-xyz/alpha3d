@@ -87,18 +87,28 @@ pub async fn upload_file(
 
 pub async fn get_file_analysis(
     State(pool): State<PgPool>,
-    Extension(user): Extension<User>,
+    Extension(_user): Extension<User>,
     Path(file_id): Path<Uuid>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     let file = sqlx::query_as::<_, FileRecord>(
-        "SELECT id, filename, volume_cm3, surface_area_cm2, status, created_at FROM files WHERE id = $1 AND user_id = $2"
+        "SELECT id, filename, volume_cm3, surface_area_cm2, status, created_at FROM files WHERE id = $1"
     )
     .bind(file_id)
-    .bind(user.id)
     .fetch_optional(&pool)
     .await
-    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?
-    .ok_or((StatusCode::NOT_FOUND, "File not found".to_string()))?;
+    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 
-    Ok(Json(file))
+    match file {
+        Some(f) => Ok(Json(f)),
+        None => Err((StatusCode::NOT_FOUND, "File not found".to_string())),
+    }
+}
+
+pub async fn get_file_quoting(
+    State(_pool): State<PgPool>,
+    Extension(_user): Extension<User>,
+    Path(_file_id): Path<Uuid>,
+) -> Result<Json<()>, (StatusCode, String)> {
+    // Placeholder for now
+    Err((StatusCode::NOT_IMPLEMENTED, "Not implemented".to_string()))
 }

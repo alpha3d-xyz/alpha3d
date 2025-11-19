@@ -1,5 +1,5 @@
 use alpha3d::{create_app, AppState};
-use alpha3d::models::{AuthResponse, User};
+use alpha3d::models::AuthResponse;
 use alpha3d::handlers::files::UploadResponse;
 use alpha3d::storage::LocalStorage;
 use axum::{
@@ -15,6 +15,7 @@ use std::sync::Arc;
 
 // Helper to create a test pool
 async fn get_test_pool() -> PgPool {
+    dotenvy::dotenv().ok();
     let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let pool = PgPool::connect(&database_url).await.expect("Failed to connect to DB");
     // Ensure migrations are run

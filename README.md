@@ -17,6 +17,7 @@
 - [x] **3D Viewer**: Three.js-based STL viewer with rotation, zoom, and auto-positioning.
 - [x] **Quoting Engine**: Instant price calculation based on material (PLA, ABS, Resin), color, and infill.
 - [x] **Order System**: Complete flow from Quote to Order creation with shipping address.
+- [x] **Order History**: User dashboard displaying order status and history.
 - [x] **Infrastructure**: Docker Compose setup for local dev, Nginx proxy configuration.
 - [x] **Testing**: Unit tests (Rust), Integration tests (Axum), E2E tests (Playwright).
 - [ ] **Payment Integration**: (Planned) Stripe/PayPal integration.
@@ -198,7 +199,7 @@ See `deploy/gcp/README.md` for the full step-by-step guide, including Terraform 
 - [x] **Upload Interface**: Drag & drop file upload with instant viewer display
 - [x] **Quote Display**: Real-time price estimation with material/color/infill options
 - [x] **Order Placement**: Convert quotes to orders with shipping address
-- [ ] **Order History**: User dashboard (Planned)
+- [x] **Order History**: User dashboard with status-coded order cards
 - [ ] **Payment Integration**: Stripe/PayPal checkout (Planned)
 
 ## Acceptance Tests

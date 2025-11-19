@@ -4,6 +4,7 @@ use axum::{
     response::IntoResponse,
 };
 use sqlx::PgPool;
+use uuid::Uuid;
 use crate::quoting::{calculate_quote, QuoteRequest};
 
 #[derive(sqlx::FromRow)]
@@ -30,8 +31,28 @@ pub async fn calculate_quote_handler(
     };
 
     // 2. Calculate quote
-    let response = calculate_quote(volume, &payload.material);
+    let mut response = calculate_quote(volume, &payload.material);
 
-    // 3. Return response
+    // 3. Save quote to DB
+    let quote_id = sqlx::query_scalar::<_, Uuid>(
+        r#"
+        INSERT INTO quotes (file_id, material, color, layer_height, infill_percentage, estimated_cost)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING id
+        "#
+    )
+    .bind(payload.file_id)
+    .bind(format!("{:?}", payload.material).to_uppercase()) // Enum to string
+    .bind(&payload.color)
+    .bind(payload.layer_height.unwrap_or(0.2))
+    .bind(payload.infill_percentage.unwrap_or(20))
+    .bind(response.estimated_cost)
+    .fetch_one(&pool)
+    .await
+    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+
+    response.id = quote_id;
+
+    // 4. Return response
     Ok(Json(response))
 }

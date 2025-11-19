@@ -87,17 +87,135 @@
         <div class="actions-row">
           <button @click="fileStore.clearFile" class="btn btn-secondary">Analyze Another File</button>
         </div>
+
+        <!-- Quoting Section -->
+        <div class="quoting-section">
+          <h2 class="section-title">Instant Quote</h2>
+          <div class="quote-form card">
+            <div class="form-group">
+              <label>Material</label>
+              <select v-model="quoteForm.material" class="form-select">
+                <option value="PLA">PLA (Standard)</option>
+                <option value="ABS">ABS (Durable)</option>
+                <option value="RESIN">Resin (High Detail)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Color</label>
+              <select v-model="quoteForm.color" class="form-select">
+                <option value="White">White</option>
+                <option value="Black">Black</option>
+                <option value="Grey">Grey</option>
+                <option value="Red">Red</option>
+                <option value="Blue">Blue</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Infill (%)</label>
+              <input type="number" v-model="quoteForm.infill" min="10" max="100" step="10" class="form-input">
+            </div>
+            
+            <button @click="calculateQuote" class="btn btn-primary full-width" :disabled="calculating">
+              {{ calculating ? 'Calculating...' : 'Calculate Price' }}
+            </button>
+          </div>
+
+          <div v-if="quoteResult" class="quote-result card">
+            <div class="price-display">
+              <span class="currency">{{ quoteResult.currency }}</span>
+              <span class="amount">{{ formatNumber(quoteResult.estimated_cost) }}</span>
+            </div>
+            <div class="breakdown">
+              <div class="breakdown-row">
+                <span>Material Cost</span>
+                <span>{{ formatNumber(quoteResult.breakdown.material_cost) }}</span>
+              </div>
+              <div class="breakdown-row">
+                <span>Machine Cost</span>
+                <span>{{ formatNumber(quoteResult.breakdown.machine_cost) }}</span>
+              </div>
+            </div>
+            <button @click="placeOrder" class="btn btn-success full-width" :disabled="ordering">
+              {{ ordering ? 'Processing...' : 'Place Order' }}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, reactive } from 'vue';
 import { useFileStore } from '../stores/files';
+import { apiClient } from '../lib/apiClient';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const fileStore = useFileStore();
 const fileInput = ref(null);
+const calculating = ref(false);
+const ordering = ref(false);
+const quoteResult = ref(null);
+
+const formatNumber = (num) => {
+  return new Intl.NumberFormat('en-US').format(num);
+};
+
+const quoteForm = reactive({
+  material: 'PLA',
+  color: 'White',
+  infill: 20
+});
+
+const calculateQuote = async () => {
+  if (!fileStore.currentFile) return;
+  
+  calculating.value = true;
+  try {
+    const response = await apiClient.post('/api/quotes/calculate', {
+      file_id: fileStore.currentFile.file_id,
+      material: quoteForm.material,
+      color: quoteForm.color,
+      infill_percentage: quoteForm.infill
+    });
+    quoteResult.value = response.data;
+  } catch (error) {
+    console.error('Quote calculation failed:', error);
+    alert('Failed to calculate quote');
+  } finally {
+    calculating.value = false;
+  }
+};
+
+const placeOrder = async () => {
+  if (!quoteResult.value) return;
+  
+  ordering.value = true;
+  try {
+    // Mock shipping address for now
+    const shippingAddress = {
+      recipient: "Demo User",
+      address: "123 Maker Street",
+      city: "Seoul",
+      zip: "04524"
+    };
+
+    const response = await apiClient.post('/api/orders', {
+      quote_id: quoteResult.value.id,
+      shipping_address: shippingAddress
+    });
+    
+    alert(`Order placed successfully! Order ID: ${response.data.id}`);
+    // router.push('/orders'); // TODO: Implement orders page
+  } catch (error) {
+    console.error('Order placement failed:', error);
+    alert('Failed to place order');
+  } finally {
+    ordering.value = false;
+  }
+};
+
 const isDragging = ref(false);
 
 const triggerFileInput = () => {
@@ -121,10 +239,6 @@ const processFile = async (file) => {
     return;
   }
   await fileStore.uploadFile(file);
-};
-
-const formatNumber = (num) => {
-  return num ? num.toFixed(2) : '0.00';
 };
 </script>
 

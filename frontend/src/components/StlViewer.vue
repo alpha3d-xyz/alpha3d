@@ -1,10 +1,10 @@
 <template>
   <div ref="container" class="viewer-container">
     <div v-if="loading" class="viewer-loading">
-      Loading 3D Model...
+      {{ $t('viewer.loading') }}
     </div>
     <div v-if="error" class="viewer-error">
-      <p><strong>❌ Failed to load 3D model</strong></p>
+      <p><strong>❌ {{ $t('viewer.error') }}</strong></p>
       <p style="font-size: 0.875rem;">{{ error }}</p>
     </div>
   </div>

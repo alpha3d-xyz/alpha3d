@@ -5,14 +5,14 @@
         <div class="logo">Alpha3D</div>
         <nav class="nav-links">
           <template v-if="authStore.isAuthenticated">
-            <router-link to="/" class="nav-item">Upload</router-link>
-            <router-link to="/orders" class="nav-item">Orders</router-link>
+            <router-link to="/" class="nav-item">{{ $t('nav.upload') }}</router-link>
+            <router-link to="/orders" class="nav-item">{{ $t('nav.orders') }}</router-link>
             <span class="user-email">{{ authStore.user?.email }}</span>
-            <button @click="handleLogout" class="btn btn-outline btn-sm">Logout</button>
+            <button @click="handleLogout" class="btn btn-outline btn-sm">{{ $t('nav.logout') }}</button>
           </template>
           <template v-else>
-            <router-link to="/login" class="nav-item">Login</router-link>
-            <router-link to="/signup" class="btn btn-primary btn-sm">Signup</router-link>
+            <router-link to="/login" class="nav-item">{{ $t('nav.login') }}</router-link>
+            <router-link to="/signup" class="btn btn-primary btn-sm">{{ $t('nav.signup') }}</router-link>
           </template>
         </nav>
       </div>

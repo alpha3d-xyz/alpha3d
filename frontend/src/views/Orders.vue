@@ -1,13 +1,13 @@
 <template>
   <div class="orders-page">
     <div class="page-header">
-      <h1 class="page-title">Order History</h1>
-      <p class="page-subtitle">Track your 3D printing orders</p>
+      <h1 class="page-title">{{ $t('orders.title') }}</h1>
+      <p class="page-subtitle">{{ $t('orders.subtitle') }}</p>
     </div>
 
     <div v-if="loading" class="loading-state">
       <div class="spinner"></div>
-      <p>Loading orders...</p>
+      <p>{{ $t('orders.loading') }}</p>
     </div>
 
     <div v-else-if="error" class="error-message">
@@ -21,16 +21,16 @@
           <polyline points="3 8 12 13 21 8"></polyline>
         </svg>
       </div>
-      <h3>No orders yet</h3>
-      <p>Your order history will appear here once you place your first order.</p>
-      <router-link to="/" class="btn btn-primary">Upload a File</router-link>
+      <h3>{{ $t('orders.noOrders') }}</h3>
+      <p>{{ $t('orders.noOrdersDesc') }}</p>
+      <router-link to="/" class="btn btn-primary">{{ $t('orders.uploadFile') }}</router-link>
     </div>
 
     <div v-else class="orders-container">
       <div class="order-card card" v-for="order in orders" :key="order.id">
         <div class="order-header">
           <div class="order-info">
-            <h3 class="order-id">Order #{{ order.id.substring(0, 8) }}</h3>
+            <h3 class="order-id">{{ $t('orders.orderId') }}{{ order.id.substring(0, 8) }}</h3>
             <span class="order-date">{{ formatDate(order.created_at) }}</span>
           </div>
           <span class="status-badge" :class="`status-${order.status.toLowerCase()}`">
@@ -40,22 +40,22 @@
         
         <div class="order-body">
           <div class="order-detail">
-            <span class="label">Order ID:</span>
+            <span class="label">{{ $t('orders.fullOrderId') }}:</span>
             <span class="value">{{ order.id }}</span>
           </div>
           <div class="order-detail">
-            <span class="label">Status:</span>
+            <span class="label">{{ $t('orders.status') }}:</span>
             <span class="value">{{ getStatusDescription(order.status) }}</span>
           </div>
           <div class="order-detail">
-            <span class="label">Created:</span>
+            <span class="label">{{ $t('orders.created') }}:</span>
             <span class="value">{{ formatDateTime(order.created_at) }}</span>
           </div>
         </div>
 
         <div class="order-actions">
           <button @click="viewOrderDetails(order.id)" class="btn btn-outline btn-sm">
-            View Details
+            {{ $t('orders.viewDetails') }}
           </button>
         </div>
       </div>
@@ -67,7 +67,9 @@
 import { ref, onMounted } from 'vue';
 import { apiClient } from '../lib/apiClient';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const router = useRouter();
 const orders = ref([]);
 const loading = ref(true);
@@ -82,7 +84,7 @@ const fetchOrders = async () => {
     orders.value = response.data;
   } catch (err) {
     console.error('Failed to fetch orders:', err);
-    error.value = 'Failed to load orders. Please try again.';
+    error.value = t('orders.failed');
   } finally {
     loading.value = false;
   }

@@ -1,0 +1,10 @@
+/Users/yezune/ws/vue-axum_utopia/target/debug/deps/mime_guess-66201dbf5553528d.d: /Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mime_guess-2.0.5/src/lib.rs /Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mime_guess-2.0.5/src/impl_bin_search.rs /Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mime_guess-2.0.5/src/mime_types.rs /Users/yezune/ws/vue-axum_utopia/target/debug/build/mime_guess-0d26d7cea8640e5f/out/mime_types_generated.rs
+
+/Users/yezune/ws/vue-axum_utopia/target/debug/deps/libmime_guess-66201dbf5553528d.rmeta: /Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mime_guess-2.0.5/src/lib.rs /Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mime_guess-2.0.5/src/impl_bin_search.rs /Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mime_guess-2.0.5/src/mime_types.rs /Users/yezune/ws/vue-axum_utopia/target/debug/build/mime_guess-0d26d7cea8640e5f/out/mime_types_generated.rs
+
+/Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mime_guess-2.0.5/src/lib.rs:
+/Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mime_guess-2.0.5/src/impl_bin_search.rs:
+/Users/yezune/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mime_guess-2.0.5/src/mime_types.rs:
+/Users/yezune/ws/vue-axum_utopia/target/debug/build/mime_guess-0d26d7cea8640e5f/out/mime_types_generated.rs:
+
+# env-dep:MIME_TYPES_GENERATED_PATH=/Users/yezune/ws/vue-axum_utopia/target/debug/build/mime_guess-0d26d7cea8640e5f/out/mime_types_generated.rs

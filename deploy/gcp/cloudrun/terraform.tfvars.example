@@ -1,0 +1,6 @@
+project_id           = "your-gcp-project"
+region               = "asia-northeast3"
+backend_image        = "asia-northeast3-docker.pkg.dev/your-gcp-project/vue-axum-utopia/backend:latest"
+frontend_image       = "asia-northeast3-docker.pkg.dev/your-gcp-project/vue-axum-utopia/frontend:latest"
+backend_service_name = "vue-axum-backend"
+frontend_service_name = "vue-axum-frontend"

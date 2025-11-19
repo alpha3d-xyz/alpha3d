@@ -1,0 +1,69 @@
+substitutions:
+  _REGION: asia-northeast3
+  _REPOSITORY: vue-axum-utopia
+  _BACKEND_SERVICE: vue-axum-backend
+  _FRONTEND_SERVICE: vue-axum-frontend
+  _BACKEND_BASE_URL: https://your-backend-url.a.run.app
+
+steps:
+  - name: gcr.io/cloud-builders/docker
+    id: build-backend
+    args:
+      - build
+      - -f
+      - Dockerfile.backend
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/backend:$SHORT_SHA
+      - .
+
+  - name: gcr.io/cloud-builders/docker
+    id: push-backend
+    args:
+      - push
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/backend:$SHORT_SHA
+
+  - name: gcr.io/cloud-builders/docker
+    id: build-frontend
+    args:
+      - build
+      - -f
+      - frontend/Dockerfile
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/frontend:$SHORT_SHA
+      - --build-arg
+      - VITE_API_BASE_URL=/api
+      - frontend
+
+  - name: gcr.io/cloud-builders/docker
+    id: push-frontend
+    args:
+      - push
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/frontend:$SHORT_SHA
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    id: deploy-backend
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - ${_BACKEND_SERVICE}
+      - --image=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/backend:$SHORT_SHA
+      - --region=${_REGION}
+      - --allow-unauthenticated
+      - --set-env-vars=RUST_LOG=info
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    id: deploy-frontend
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - ${_FRONTEND_SERVICE}
+      - --image=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/frontend:$SHORT_SHA
+      - --region=${_REGION}
+      - --allow-unauthenticated
+      - --set-env-vars=BACKEND_BASE_URL=${_BACKEND_BASE_URL}
+
+images:
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/backend:$SHORT_SHA
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/frontend:$SHORT_SHA

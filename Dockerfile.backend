@@ -1,0 +1,21 @@
+# syntax=docker/dockerfile:1.7
+FROM rustlang/rust:nightly as builder
+WORKDIR /app
+
+# Cache dependencies
+COPY Cargo.toml Cargo.lock ./
+COPY src ./src
+RUN cargo build --release
+
+FROM debian:bookworm-slim as runtime
+WORKDIR /app
+RUN useradd --system --create-home appuser \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /app/target/release/vue-axum_utopia /usr/local/bin/app
+USER appuser
+ENV RUST_LOG=info
+EXPOSE 3000
+CMD ["/usr/local/bin/app"]

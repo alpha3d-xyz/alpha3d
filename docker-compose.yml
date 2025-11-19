@@ -1,0 +1,22 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    image: vue-axum-backend:dev
+    environment:
+      - RUST_LOG=info
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: vue-axum-frontend:dev
+    depends_on:
+      - backend
+    environment:
+      - BACKEND_BASE_URL=http://backend:3000
+    ports:
+      - "5173:8080"

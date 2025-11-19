@@ -3,17 +3,39 @@ pub mod handlers;
 pub mod models;
 pub mod middleware;
 pub mod analysis;
+pub mod storage;
 
 use axum::{
     Json, Router, Extension,
     routing::{get, post},
     middleware::from_fn,
+    extract::{DefaultBodyLimit, FromRef},
 };
 use serde::{Deserialize, Serialize};
 use tower_http::cors::CorsLayer;
 use utoipa::{OpenApi, ToSchema};
 use utoipa_swagger_ui::SwaggerUi;
 use sqlx::PgPool;
+use std::sync::Arc;
+use storage::StorageService;
+
+#[derive(Clone)]
+pub struct AppState {
+    pub pool: PgPool,
+    pub storage: Arc<dyn StorageService>,
+}
+
+impl FromRef<AppState> for PgPool {
+    fn from_ref(state: &AppState) -> Self {
+        state.pool.clone()
+    }
+}
+
+impl FromRef<AppState> for Arc<dyn StorageService> {
+    fn from_ref(state: &AppState) -> Self {
+        state.storage.clone()
+    }
+}
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct GreetingResponse {
@@ -60,7 +82,7 @@ pub async fn echo_message(Json(payload): Json<EchoPayload>) -> Json<EchoPayload>
 )]
 pub struct ApiDoc;
 
-pub fn create_app(pool: PgPool) -> Router {
+pub fn create_app(state: AppState) -> Router {
     Router::new()
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .route("/api/greeting", get(get_greeting))
@@ -70,7 +92,8 @@ pub fn create_app(pool: PgPool) -> Router {
         .route("/api/auth/me", get(handlers::me).layer(from_fn(middleware::auth_middleware)))
         .route("/api/files/upload", post(handlers::files::upload_file).layer(from_fn(middleware::auth_middleware)))
         .route("/api/files/:id/analysis", get(handlers::files::get_file_analysis).layer(from_fn(middleware::auth_middleware)))
-        .layer(Extension(pool.clone()))
-        .with_state(pool)
+        .layer(DefaultBodyLimit::max(102 * 1024 * 1024))
+        .layer(Extension(state.pool.clone()))
+        .with_state(state)
         .layer(CorsLayer::permissive())
 }

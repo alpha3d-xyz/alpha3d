@@ -121,10 +121,12 @@ See `deploy/gcp/README.md` for the full step-by-step guide, including Terraform 
 
 ### File Management & Analysis (Core Engine)
 
-- [ ] **File Upload**: Multipart upload endpoint (STL/OBJ)
-- [ ] **Cloud Storage**: Google Cloud Storage integration
-- [ ] **Geometry Analysis**: Volume, Surface Area, Bounding Box calculation (Rust)
-- [x] **Database Schema**: Files table (Schema created, Logic pending)
+- [x] **File Upload**: Multipart upload endpoint with 100MB size limit
+- [x] **Storage Abstraction**: Pluggable storage backend (Local/GCS)
+- [x] **Local Storage**: Development/testing with local filesystem
+- [x] **GCS Support**: Simulated GCS storage (ready for production integration)
+- [x] **Geometry Analysis**: Volume, Surface Area calculation from STL files
+- [x] **Database Schema**: Files table with analysis metadata
 
 ### Quoting System
 

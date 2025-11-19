@@ -7,10 +7,14 @@ use axum::{
 use sqlx::PgPool;
 use crate::models::User;
 use crate::analysis;
+use crate::storage::StorageService;
+use std::sync::Arc;
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
 use sqlx::FromRow;
+
+const MAX_FILE_SIZE: usize = 100 * 1024 * 1024; // 100 MB
 
 #[derive(Debug, Serialize, FromRow)]
 pub struct FileRecord {
@@ -32,19 +36,26 @@ pub struct UploadResponse {
 
 pub async fn upload_file(
     State(pool): State<PgPool>,
+    State(storage): State<Arc<dyn StorageService>>,
     Extension(user): Extension<User>,
     mut multipart: Multipart,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     while let Some(field) = multipart.next_field().await.map_err(|e| (StatusCode::BAD_REQUEST, e.to_string()))? {
         let filename = field.file_name().unwrap_or("unknown.stl").to_string();
+        let content_type = field.content_type().unwrap_or("application/octet-stream").to_string();
         let data = field.bytes().await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+
+        if data.len() > MAX_FILE_SIZE {
+            return Err((StatusCode::PAYLOAD_TOO_LARGE, "File size exceeds 100MB limit".to_string()));
+        }
 
         // 1. Analyze Geometry
         let analysis = analysis::analyze_stl(&data).map_err(|e| (StatusCode::BAD_REQUEST, format!("Invalid STL: {}", e)))?;
 
-        // 2. Save to DB (Simulating GCS upload by just storing metadata for now)
-        // In a real app, we would upload `data` to GCS here and get the `gcs_path`.
-        let gcs_path = format!("gs://bucket/{}", filename); 
+        // 2. Upload to Storage
+        let unique_filename = format!("{}_{}", Uuid::new_v4(), filename);
+        let gcs_path = storage.upload_file(&unique_filename, data.clone(), &content_type).await
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Storage error: {}", e)))?;
 
         let file_record = sqlx::query_as::<_, FileRecord>(
             r#"

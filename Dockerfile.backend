@@ -5,6 +5,7 @@ WORKDIR /app
 # Cache dependencies
 COPY Cargo.toml Cargo.lock ./
 COPY src ./src
+COPY migrations ./migrations
 RUN cargo build --release
 
 FROM debian:bookworm-slim as runtime
@@ -12,7 +13,9 @@ WORKDIR /app
 RUN useradd --system --create-home appuser \
     && apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /app/uploads \
+    && chown -R appuser:appuser /app
 
 COPY --from=builder /app/target/release/alpha3d /usr/local/bin/app
 USER appuser

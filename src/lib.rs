@@ -2,6 +2,7 @@ pub mod auth;
 pub mod handlers;
 pub mod models;
 pub mod middleware;
+pub mod analysis;
 
 use axum::{
     Json, Router, Extension,
@@ -67,6 +68,8 @@ pub fn create_app(pool: PgPool) -> Router {
         .route("/api/auth/signup", post(handlers::signup))
         .route("/api/auth/login", post(handlers::login))
         .route("/api/auth/me", get(handlers::me).layer(from_fn(middleware::auth_middleware)))
+        .route("/api/files/upload", post(handlers::files::upload_file).layer(from_fn(middleware::auth_middleware)))
+        .route("/api/files/:id/analysis", get(handlers::files::get_file_analysis).layer(from_fn(middleware::auth_middleware)))
         .layer(Extension(pool.clone()))
         .with_state(pool)
         .layer(CorsLayer::permissive())

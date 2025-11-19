@@ -103,11 +103,47 @@ gcloud builds submit \
 
 See `deploy/gcp/README.md` for the full step-by-step guide, including Terraform usage.
 
-## Next steps
+## Feature Checklist
 
-- Add persistence (e.g., SQLx, Prisma, or SurrealDB)
-- Configure infrastructure (Docker, fly.io, etc.)
-- Extend OpenAPI schemas as you introduce new resources
+### Core Infrastructure
+
+- [x] **Project Setup**: Vue 3 + Vite (Frontend), Axum (Backend)
+- [x] **Dockerization**: Dockerfile for Backend & Frontend, docker-compose.yml
+- [x] **Database**: PostgreSQL integration with `sqlx`
+- [x] **Deployment**: Google Cloud Run configuration (Cloud Build, Terraform)
+
+### Authentication & User Management
+
+- [x] **Backend Auth**: Signup, Login, JWT Token generation, Argon2 hashing
+- [x] **Middleware**: Protected routes verification
+- [x] **Frontend Auth**: Login/Signup forms, Pinia Store, Router Guards
+- [x] **Database Schema**: Users table
+
+### File Management & Analysis (Core Engine)
+
+- [ ] **File Upload**: Multipart upload endpoint (STL/OBJ)
+- [ ] **Cloud Storage**: Google Cloud Storage integration
+- [ ] **Geometry Analysis**: Volume, Surface Area, Bounding Box calculation (Rust)
+- [x] **Database Schema**: Files table (Schema created, Logic pending)
+
+### Quoting System
+
+- [ ] **Pricing Logic**: Material cost + Machine time + Markup
+- [ ] **Quote Generation**: API to calculate price based on analysis
+- [x] **Database Schema**: Quotes table (Schema created, Logic pending)
+
+### Order Management
+
+- [ ] **Order Creation**: Convert Quote to Order
+- [ ] **Order Status**: Tracking (Paid, Printing, Shipped)
+- [x] **Database Schema**: Orders table (Schema created, Logic pending)
+
+### Frontend Features
+
+- [ ] **3D Viewer**: Three.js integration for STL preview
+- [ ] **Upload Interface**: Drag & drop file upload
+- [ ] **Quote Display**: Real-time price estimation
+- [ ] **Order History**: User dashboard
 
 ## Acceptance Tests
 

@@ -1,3 +1,5 @@
+pub mod files;
+
 use axum::{
     extract::{State, Json},
     http::StatusCode,

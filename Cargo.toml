@@ -12,7 +12,7 @@ name = "alpha3d"
 path = "src/main.rs"
 
 [dependencies]
-axum = { version = "0.7", features = ["macros", "json"] }
+axum = { version = "0.7", features = ["macros", "json", "multipart"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
@@ -28,6 +28,9 @@ uuid = { version = "1", features = ["serde", "v4"] }
 chrono = { version = "0.4", features = ["serde"] }
 dotenvy = "0.15"
 validator = { version = "0.16", features = ["derive"] }
+stl_io = "0.7"
+axum-extra = { version = "0.9", features = ["multipart"] }
+tempfile = "3"
 
 [dev-dependencies]
 reqwest = { version = "0.11", features = ["json"] }

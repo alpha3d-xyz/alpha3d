@@ -4,6 +4,7 @@ pub mod models;
 pub mod middleware;
 pub mod analysis;
 pub mod storage;
+pub mod quoting;
 
 use axum::{
     Json, Router, Extension,
@@ -92,6 +93,11 @@ pub fn create_app(state: AppState) -> Router {
         .route("/api/auth/me", get(handlers::me).layer(from_fn(middleware::auth_middleware)))
         .route("/api/files/upload", post(handlers::files::upload_file).layer(from_fn(middleware::auth_middleware)))
         .route("/api/files/:id/analysis", get(handlers::files::get_file_analysis).layer(from_fn(middleware::auth_middleware)))
+        .route("/api/files/:id/quoting", get(handlers::files::get_file_quoting).layer(from_fn(middleware::auth_middleware)))
+        .route("/api/quotes/calculate", post(handlers::quoting::calculate_quote_handler).layer(from_fn(middleware::auth_middleware)))
+        .route("/api/orders", post(handlers::orders::create_order).get(handlers::orders::list_orders).layer(from_fn(middleware::auth_middleware)))
+        .route("/api/admin/orders", get(handlers::admin::list_orders).layer(from_fn(middleware::auth_middleware)))
+        .route("/api/admin/orders/:id/status", axum::routing::patch(handlers::admin::update_order_status).layer(from_fn(middleware::auth_middleware)))
         .layer(DefaultBodyLimit::max(102 * 1024 * 1024))
         .layer(Extension(state.pool.clone()))
         .with_state(state)

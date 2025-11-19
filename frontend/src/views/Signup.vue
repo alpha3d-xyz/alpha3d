@@ -1,21 +1,21 @@
 <template>
   <div class="auth-wrapper">
     <div class="card auth-card">
-      <h2 class="auth-title">Create Account</h2>
-      <p class="auth-subtitle">Get started with Alpha3D</p>
+      <h2 class="auth-title">{{ $t('auth.createAccount') }}</h2>
+      <p class="auth-subtitle">{{ $t('auth.signUpSubtitle') }}</p>
       
       <form @submit.prevent="handleSignup" class="auth-form">
         <div class="form-group">
-          <label class="form-label">Email</label>
+          <label class="form-label">{{ $t('auth.email') }}</label>
           <input v-model="email" type="email" required class="input-field" placeholder="name@example.com" />
         </div>
         <div class="form-group">
-          <label class="form-label">Password</label>
+          <label class="form-label">{{ $t('auth.password') }}</label>
           <input v-model="password" type="password" required class="input-field" placeholder="••••••••" />
         </div>
         
         <button type="submit" :disabled="authStore.loading" class="btn btn-primary full-width">
-          {{ authStore.loading ? 'Creating account...' : 'Sign Up' }}
+          {{ authStore.loading ? $t('auth.signingUp') : $t('auth.signUp') }}
         </button>
         
         <div v-if="authStore.error" class="error-message">
@@ -25,7 +25,7 @@
       
       <div class="auth-footer">
         <p>
-          Already have an account? <router-link to="/login">Sign in</router-link>
+          {{ $t('auth.hasAccount') }} <router-link to="/login">{{ $t('auth.signInLink') }}</router-link>
         </p>
       </div>
     </div>

@@ -1,25 +1,51 @@
 # Alpha3D
 
-A minimal full-stack template that pairs a Vue 3 + Vite frontend with an Axum backend. OpenAPI documentation is generated automatically via [Utoipa](https://crates.io/crates/utoipa) and served with Swagger UI so you can explore the API immediately.
+**Alpha3D** is a next-generation 3D prototyping platform designed for design students and early-stage startups. It provides instant AI-based quoting and 3D printing ordering services, leveraging Rust's high performance for real-time model analysis.
+
+## Key Features
+
+- **Instant Quote**: Real-time price calculation based on volume, material, and print time.
+- **3D Model Analysis**: Automatic calculation of volume, surface area, and bounding box for STL/OBJ files.
+- **Smart Viewer**: Web-based 3D viewer with auto-rotation and size visualization.
+- **Secure Auth**: JWT-based authentication with Argon2 password hashing.
+- **Cloud Native**: Designed for Google Cloud Platform (Cloud Run, Cloud SQL, Cloud Storage).
+
+## Implementation Status
+
+- [x] **User Authentication**: JWT-based Signup & Login with Argon2 password hashing.
+- [x] **File Upload**: Support for STL files up to 100MB with automatic geometry analysis.
+- [x] **3D Viewer**: Three.js-based STL viewer with rotation, zoom, and auto-positioning.
+- [x] **Quoting Engine**: Instant price calculation based on material (PLA, ABS, Resin), color, and infill.
+- [x] **Order System**: Complete flow from Quote to Order creation with shipping address.
+- [x] **Order History**: User dashboard displaying order status and history.
+- [x] **Infrastructure**: Docker Compose setup for local dev, Nginx proxy configuration.
+- [x] **Testing**: Unit tests (Rust), Integration tests (Axum), E2E tests (Playwright).
+- [ ] **Payment Integration**: (Planned) Stripe/PayPal integration.
+- [ ] **Admin Dashboard**: (Planned) Order management interface.
+
+## Documentation
+
+- [Technical Specification](docs/TECHNICAL_SPEC.md)
+- [Git Branch Strategy](docs/git-branch-strategy.md)
+- [Request for Specification](docs/RFS.md)
 
 ## Project layout
 
 ```txt
 .
 ├── Cargo.toml
-├── src/
-│   └── main.rs          # Axum server + OpenAPI doc generation
-├── Dockerfile.backend   # Multi-stage build for the Axum API
-├── docker-compose.yml   # Spins up backend + frontend together
-├── frontend/
-│   ├── package.json     # Vue + Vite project
-│   ├── Dockerfile       # Builds the static Vue bundle + nginx image
-│   └── nginx.conf       # Proxies /api requests to the backend
-│   └── src/
-│       ├── App.vue
-│       └── components/
-│           └── GreetingCard.vue
-└── README.md
+├── src/                 # Rust Backend (Axum)
+│   ├── main.rs
+│   ├── lib.rs
+│   ├── quoting.rs       # Quoting Logic
+│   ├── analysis.rs      # Geometry Analysis
+│   ├── handlers/        # API Handlers
+│   └── models.rs        # Database Models
+├── tests/               # Integration & Acceptance Tests
+├── frontend/            # Vue 3 + Vite Frontend
+├── migrations/          # SQLx Database Migrations
+├── docs/                # Project Documentation
+└── docker-compose.yml   # Local Development Environment
 ```
 
 ## Requirements
@@ -27,23 +53,34 @@ A minimal full-stack template that pairs a Vue 3 + Vite frontend with an Axum ba
 - Rust (1.80+) with `cargo`
 - Node.js 18+ with npm
 - Docker 24+ (optional, for containerized workflow)
-  - The Docker builder image pins `rustlang/rust:nightly` so Cargo can compile the Edition 2024 crate.
-- gcloud CLI (optional, for GCP deployment)
+- PostgreSQL 15+ (if running locally without Docker)
 
-## Backend (Axum + Utoipa)
+## Getting Started
+
+### 1. Database Setup
 
 ```bash
-# from repo root
-cargo run
+# Start Postgres via Docker
+docker compose up -d db
+
+# Run Migrations
+sqlx migrate run
 ```
 
-- Serves REST endpoints at `http://localhost:3000`
-- Swagger UI + OpenAPI JSON available at `http://localhost:3000/docs`
-- Sample routes
-  - `GET /api/greeting`
-  - `POST /api/echo`
+### 2. Backend (Axum)
 
-## Frontend (Vue + Vite)
+```bash
+# Run locally
+cargo run
+
+# Run Tests
+cargo test
+```
+
+- API: `http://localhost:3000`
+- Swagger UI: `http://localhost:3000/swagger-ui`
+
+### 3. Frontend (Vue + Vite)
 
 ```bash
 cd frontend
@@ -51,21 +88,47 @@ npm install
 npm run dev
 ```
 
-- Dev server runs at `http://localhost:5173`
-- Requests to `/api/*` are proxied to the Axum server, so both apps can run concurrently
+- UI: `http://localhost:5173`
 
-For a production build:
+### 4. Running Tests
+
+#### Backend Tests
+
+```bash
+# Run all tests (unit + integration)
+cargo test
+
+# Run specific test suite
+cargo test --test acceptance_orders
+cargo test --test api_auth
+```
+
+#### Frontend E2E Tests
 
 ```bash
 cd frontend
-npm run build
+
+# Install Playwright browsers (first time only)
+npx playwright install chromium
+
+# Run E2E tests
+npm run test:e2e
+
+# Run tests in UI mode
+npx playwright test --ui
+
+# Run specific test file
+npx playwright test tests/stl-viewer.spec.js
 ```
 
-## Recommended workflow
+**E2E Test Coverage:**
 
-1. Start the Rust API with `cargo run`
-2. Start the Vue dev server with `npm run dev` inside `frontend`
-3. Visit the UI at `http://localhost:5173` and the API docs at `http://localhost:3000/docs`
+- User authentication flow (signup/login)
+- STL file upload and immediate 3D viewer display
+- 3D model rendering with Three.js
+- Interactive controls (rotation, zoom)
+- Quote calculation and order placement
+- File cleanup and viewer reset
 
 ## Docker Compose workflow
 
@@ -73,16 +136,6 @@ Build and run both services with one command:
 
 ```bash
 docker compose up --build
-```
-
-- Backend is available at `http://localhost:3000`
-- Frontend (Nginx) serves the built assets at `http://localhost:5173`
-- The Nginx config proxies `/api`, `/docs`, and `/api-doc` requests to the backend container so the SPA works without extra environment wiring.
-
-To tear everything down:
-
-```bash
-docker compose down
 ```
 
 ## Deploying to Google Cloud Run
@@ -130,22 +183,24 @@ See `deploy/gcp/README.md` for the full step-by-step guide, including Terraform 
 
 ### Quoting System
 
-- [ ] **Pricing Logic**: Material cost + Machine time + Markup
-- [ ] **Quote Generation**: API to calculate price based on analysis
-- [x] **Database Schema**: Quotes table (Schema created, Logic pending)
+- [x] **Pricing Logic**: Material cost + Machine time + Markup
+- [x] **Quote Generation**: API to calculate price based on analysis
+- [x] **Database Schema**: Quotes table with material, color, infill metadata
 
 ### Order Management
 
-- [ ] **Order Creation**: Convert Quote to Order
-- [ ] **Order Status**: Tracking (Paid, Printing, Shipped)
-- [x] **Database Schema**: Orders table (Schema created, Logic pending)
+- [x] **Order Creation**: Convert Quote to Order with shipping address
+- [x] **Order Status**: Status tracking (PENDING, PAID, PRINTING, SHIPPED, CANCELLED)
+- [x] **Database Schema**: Orders table with quote references and JSONB metadata
 
 ### Frontend Features
 
-- [ ] **3D Viewer**: Three.js integration for STL preview
-- [ ] **Upload Interface**: Drag & drop file upload
-- [ ] **Quote Display**: Real-time price estimation
-- [ ] **Order History**: User dashboard
+- [x] **3D Viewer**: Three.js integration with OrbitControls for STL preview
+- [x] **Upload Interface**: Drag & drop file upload with instant viewer display
+- [x] **Quote Display**: Real-time price estimation with material/color/infill options
+- [x] **Order Placement**: Convert quotes to orders with shipping address
+- [x] **Order History**: User dashboard with status-coded order cards
+- [ ] **Payment Integration**: Stripe/PayPal checkout (Planned)
 
 ## Acceptance Tests
 

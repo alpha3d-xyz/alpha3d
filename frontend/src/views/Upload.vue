@@ -1,8 +1,8 @@
 <template>
   <div class="upload-page">
     <div class="page-header">
-      <h1 class="page-title">Analyze Geometry</h1>
-      <p class="page-subtitle">Upload your STL file to get instant geometric analysis</p>
+      <h1 class="page-title">{{ $t('upload.title') }}</h1>
+      <p class="page-subtitle">{{ $t('upload.subtitle') }}</p>
     </div>
 
     <div class="upload-container">
@@ -30,36 +30,41 @@
               <line x1="12" y1="3" x2="12" y2="15"></line>
             </svg>
           </div>
-          <h3 class="drop-title">Drop your STL file here</h3>
-          <p class="drop-subtitle">or click to browse</p>
-          <p class="file-hint">Supports .stl files</p>
+          <h3 class="drop-title">{{ $t('upload.dropTitle') }}</h3>
+          <p class="drop-subtitle">{{ $t('upload.dropSubtitle') }}</p>
+          <p class="file-hint">{{ $t('upload.hint') }}</p>
         </div>
       </div>
 
       <div v-if="fileStore.uploading" class="loading-state">
         <div class="spinner"></div>
-        <p>Analyzing geometry...</p>
+        <p>{{ $t('upload.analyzing') }}</p>
       </div>
 
       <div v-if="fileStore.error" class="error-message">
         {{ fileStore.error }}
       </div>
+      
+      <!-- Viewer Section - Shows immediately after file selection -->
+      <div v-if="fileUrl" class="viewer-section card" style="margin-bottom: 2rem;">
+        <StlViewer :fileUrl="fileUrl" />
+      </div>
 
       <div v-if="fileStore.currentFile" class="result-section">
-        <h2 class="section-title">Analysis Results</h2>
-        
+        <h2 class="section-title">{{ $t('upload.results') }}</h2>
+
         <div class="result-grid">
           <div class="card result-card">
             <div class="card-header">
-              <h3>File Info</h3>
+              <h3>{{ $t('upload.fileInfo') }}</h3>
             </div>
             <div class="card-body">
               <div class="info-row">
-                <span class="label">Filename:</span>
+                <span class="label">{{ $t('upload.filename') }}:</span>
                 <span class="value">{{ fileStore.currentFile.filename }}</span>
               </div>
               <div class="info-row">
-                <span class="label">ID:</span>
+                <span class="label">{{ $t('upload.id') }}:</span>
                 <span class="value">{{ fileStore.currentFile.file_id }}</span>
               </div>
             </div>
@@ -67,17 +72,17 @@
 
           <div class="card result-card">
             <div class="card-header">
-              <h3>Geometry Data</h3>
+              <h3>{{ $t('upload.geometryData') }}</h3>
             </div>
             <div class="card-body">
               <div class="stat-grid">
                 <div class="stat-item">
                   <span class="stat-value">{{ formatNumber(fileStore.currentFile.volume_cm3) }}</span>
-                  <span class="stat-label">Volume (cm³)</span>
+                  <span class="stat-label">{{ $t('upload.volume') }}</span>
                 </div>
                 <div class="stat-item">
                   <span class="stat-value">{{ formatNumber(fileStore.currentFile.surface_area_cm2) }}</span>
-                  <span class="stat-label">Surface Area (cm²)</span>
+                  <span class="stat-label">{{ $t('upload.surfaceArea') }}</span>
                 </div>
               </div>
             </div>
@@ -85,7 +90,60 @@
         </div>
         
         <div class="actions-row">
-          <button @click="fileStore.clearFile" class="btn btn-secondary">Analyze Another File</button>
+          <button @click="clearFile" class="btn btn-secondary">{{ $t('upload.analyzeAnother') }}</button>
+        </div>
+
+        <!-- Quoting Section -->
+        <div class="quoting-section">
+          <h2 class="section-title">{{ $t('upload.instantQuote') }}</h2>
+          <div class="quote-form card">
+            <div class="form-group">
+              <label>{{ $t('upload.material') }}</label>
+              <select v-model="quoteForm.material" class="form-select">
+                <option value="PLA">PLA (Standard)</option>
+                <option value="ABS">ABS (Durable)</option>
+                <option value="RESIN">Resin (High Detail)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>{{ $t('upload.color') }}</label>
+              <select v-model="quoteForm.color" class="form-select">
+                <option value="White">White</option>
+                <option value="Black">Black</option>
+                <option value="Grey">Grey</option>
+                <option value="Red">Red</option>
+                <option value="Blue">Blue</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>{{ $t('upload.infill') }}</label>
+              <input type="number" v-model="quoteForm.infill" min="10" max="100" step="10" class="form-input">
+            </div>
+            
+            <button @click="calculateQuote" class="btn btn-primary full-width" :disabled="calculating">
+              {{ calculating ? $t('upload.calculating') : $t('upload.calculatePrice') }}
+            </button>
+          </div>
+
+          <div v-if="quoteResult" class="quote-result card">
+            <div class="price-display">
+              <span class="currency">{{ quoteResult.currency }}</span>
+              <span class="amount">{{ formatNumber(quoteResult.estimated_cost) }}</span>
+            </div>
+            <div class="breakdown">
+              <div class="breakdown-row">
+                <span>{{ $t('upload.materialCost') }}</span>
+                <span>{{ formatNumber(quoteResult.breakdown.material_cost) }}</span>
+              </div>
+              <div class="breakdown-row">
+                <span>{{ $t('upload.machineCost') }}</span>
+                <span>{{ formatNumber(quoteResult.breakdown.machine_cost) }}</span>
+              </div>
+            </div>
+            <button @click="placeOrder" class="btn btn-success full-width" :disabled="ordering">
+              {{ ordering ? $t('upload.processing') : $t('upload.placeOrder') }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -93,11 +151,89 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, reactive } from 'vue';
 import { useFileStore } from '../stores/files';
+import { apiClient } from '../lib/apiClient';
+import { useRouter } from 'vue-router';
+import StlViewer from '../components/StlViewer.vue';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
+const router = useRouter();
 const fileStore = useFileStore();
 const fileInput = ref(null);
+const calculating = ref(false);
+const ordering = ref(false);
+const quoteResult = ref(null);
+const fileUrl = ref(null);
+
+const formatNumber = (num) => {
+  return new Intl.NumberFormat('en-US').format(num);
+};
+
+const quoteForm = reactive({
+  material: 'PLA',
+  color: 'White',
+  infill: 20
+});
+
+const clearFile = () => {
+  fileStore.clearFile();
+  if (fileUrl.value) {
+    URL.revokeObjectURL(fileUrl.value);
+    fileUrl.value = null;
+  }
+  quoteResult.value = null;
+};
+
+const calculateQuote = async () => {
+  if (!fileStore.currentFile) return;
+  
+  calculating.value = true;
+  try {
+    const response = await apiClient.post('/api/quotes/calculate', {
+      file_id: fileStore.currentFile.file_id,
+      material: quoteForm.material,
+      color: quoteForm.color,
+      infill_percentage: quoteForm.infill
+    });
+    quoteResult.value = response.data;
+  } catch (error) {
+    console.error('Quote calculation failed:', error);
+    alert(t('upload.failedQuote'));
+  } finally {
+    calculating.value = false;
+  }
+};
+
+const placeOrder = async () => {
+  if (!quoteResult.value) return;
+  
+  ordering.value = true;
+  try {
+    // Mock shipping address for now
+    const shippingAddress = {
+      recipient: "Demo User",
+      address: "123 Maker Street",
+      city: "Seoul",
+      zip: "04524"
+    };
+
+    const response = await apiClient.post('/api/orders', {
+      quote_id: quoteResult.value.id,
+      shipping_address: shippingAddress
+    });
+    
+    alert(t('upload.orderPlaced', { id: response.data.id }));
+    // router.push('/orders'); // TODO: Implement orders page
+  } catch (error) {
+    console.error('Order placement failed:', error);
+    alert(t('upload.failedOrder'));
+  } finally {
+    ordering.value = false;
+  }
+};
+
 const isDragging = ref(false);
 
 const triggerFileInput = () => {
@@ -117,14 +253,18 @@ const handleDrop = (event) => {
 
 const processFile = async (file) => {
   if (!file.name.toLowerCase().endsWith('.stl')) {
-    alert('Please upload a valid STL file (.stl)');
+    alert(t('upload.invalidFile'));
     return;
   }
+  
+  // Create object URL for viewer
+  if (fileUrl.value) URL.revokeObjectURL(fileUrl.value);
+  fileUrl.value = URL.createObjectURL(file);
+  
+  console.log('[Upload] Created blob URL for viewer:', fileUrl.value);
+  console.log('[Upload] File details:', { name: file.name, size: file.size, type: file.type });
+  
   await fileStore.uploadFile(file);
-};
-
-const formatNumber = (num) => {
-  return num ? num.toFixed(2) : '0.00';
 };
 </script>
 
@@ -297,6 +437,13 @@ const formatNumber = (num) => {
 .actions-row {
   display: flex;
   justify-content: center;
+}
+
+.viewer-section {
+  margin-bottom: 2rem;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
 }
 
 @media (max-width: 640px) {

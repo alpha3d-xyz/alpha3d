@@ -3,6 +3,10 @@
     <div v-if="loading" class="viewer-loading">
       Loading 3D Model...
     </div>
+    <div v-if="error" class="viewer-error">
+      <p><strong>❌ Failed to load 3D model</strong></p>
+      <p style="font-size: 0.875rem;">{{ error }}</p>
+    </div>
   </div>
 </template>
 
@@ -25,6 +29,7 @@ const props = defineProps({
 
 const container = ref(null);
 const loading = ref(true);
+const error = ref(null);
 
 let scene, camera, renderer, controls, mesh, animationId;
 
@@ -77,6 +82,7 @@ const init = () => {
 
 const loadStl = () => {
   loading.value = true;
+  error.value = null;
   const loader = new STLLoader();
   
   console.log('[StlViewer] Loading STL from URL:', props.fileUrl);
@@ -101,21 +107,40 @@ const loadStl = () => {
       // Rotate to stand up if needed (STLs are often Z-up, Three is Y-up)
       mesh.rotation.x = -Math.PI / 2;
       
-      scene.add(mesh);
-
       // Adjust camera to fit object
       const boundingBox = geometry.boundingBox;
       const size = new THREE.Vector3();
       boundingBox.getSize(size);
+      
+      // Raise object to sit on grid (Y-up)
+      // size.z is the height because of the rotation
+      const objectHeight = size.z;
+      mesh.position.y = objectHeight / 2;
+      
+      scene.add(mesh);
+
       const maxDim = Math.max(size.x, size.y, size.z);
       const fov = camera.fov * (Math.PI / 180);
-      let cameraZ = Math.abs(maxDim / 2 * Math.tan(fov * 2));
-      cameraZ *= 2.5; // Zoom out a bit
       
-      camera.position.set(0, maxDim, cameraZ);
-      camera.lookAt(0, 0, 0);
+      // Calculate distance to fit object in view
+      // distance = (height / 2) / tan(fov / 2)
+      let cameraDistance = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+      cameraDistance *= 2.0; // Add some padding
       
-      controls.target.set(0, 0, 0);
+      // Update camera far plane if object is large
+      if (cameraDistance * 3 > camera.far) {
+        camera.far = cameraDistance * 3;
+        camera.updateProjectionMatrix();
+      }
+      
+      // Center of the object in world space
+      const centerY = objectHeight / 2;
+      
+      // Position camera at an angle, looking at the center of the object
+      camera.position.set(cameraDistance, cameraDistance + centerY, cameraDistance);
+      camera.lookAt(0, centerY, 0);
+      
+      controls.target.set(0, centerY, 0);
       controls.update();
 
       loading.value = false;
@@ -125,9 +150,10 @@ const loadStl = () => {
       const progress = (xhr.loaded / xhr.total * 100);
       console.log(`[StlViewer] Loading progress: ${progress.toFixed(0)}%`);
     },
-    (error) => {
-      console.error('[StlViewer] Error loading STL:', error);
+    (err) => {
+      console.error('[StlViewer] Error loading STL:', err);
       console.error('[StlViewer] File URL was:', props.fileUrl);
+      error.value = `Failed to load STL file: ${err.message || err}`;
       loading.value = false;
     }
   );
@@ -193,5 +219,16 @@ watch(() => props.fileUrl, () => {
   transform: translate(-50%, -50%);
   color: #666;
   font-weight: 500;
+}
+
+.viewer-error {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #dc2626;
+  text-align: center;
+  padding: 1rem;
+  max-width: 80%;
 }
 </style>

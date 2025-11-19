@@ -132,4 +132,84 @@ test.describe('STL Viewer', () => {
     // Drop zone should be visible again
     await expect(page.locator('.drop-zone')).toBeVisible();
   });
+
+  test('should not show error message when STL loads successfully', async ({ page }) => {
+    const testFilePath = path.join(__dirname, '../../data/stl/Cube_3d_printing_sample.stl');
+    
+    const fileChooserPromise = page.waitForEvent('filechooser');
+    await page.locator('.drop-zone').click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles(testFilePath);
+    
+    // Wait for viewer to appear
+    const viewerContainer = page.locator('.viewer-container');
+    await expect(viewerContainer).toBeVisible({ timeout: 5000 });
+    
+    // Canvas should be visible
+    const canvas = viewerContainer.locator('canvas');
+    await expect(canvas).toBeVisible({ timeout: 3000 });
+    
+    // Error message should NOT be visible
+    const errorMessage = viewerContainer.locator('.viewer-error');
+    await expect(errorMessage).not.toBeVisible();
+    
+    // Loading message should disappear
+    const loadingMessage = viewerContainer.locator('.viewer-loading');
+    await expect(loadingMessage).not.toBeVisible({ timeout: 5000 });
+  });
+
+  test('should verify Three.js scene is initialized with console logs', async ({ page }) => {
+    const testFilePath = path.join(__dirname, '../../data/stl/Cube_3d_printing_sample.stl');
+    
+    // Capture console logs
+    const logs = [];
+    page.on('console', msg => {
+      if (msg.text().includes('[StlViewer]')) {
+        logs.push(msg.text());
+      }
+    });
+    
+    const fileChooserPromise = page.waitForEvent('filechooser');
+    await page.locator('.drop-zone').click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles(testFilePath);
+    
+    // Wait for viewer
+    await expect(page.locator('.viewer-container canvas')).toBeVisible({ timeout: 5000 });
+    
+    // Give some time for logs to accumulate
+    await page.waitForTimeout(1000);
+    
+    // Verify we have logs indicating STL loading started
+    const hasLoadingLog = logs.some(log => log.includes('Loading STL from URL'));
+    expect(hasLoadingLog).toBeTruthy();
+    
+    // Verify we have logs indicating successful load
+    const hasSuccessLog = logs.some(log => log.includes('STL loaded successfully'));
+    expect(hasSuccessLog).toBeTruthy();
+  });
+
+  test('should verify fileUrl is properly set in debug panel', async ({ page }) => {
+    const testFilePath = path.join(__dirname, '../../data/stl/Cube_3d_printing_sample.stl');
+    
+    const fileChooserPromise = page.waitForEvent('filechooser');
+    await page.locator('.drop-zone').click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles(testFilePath);
+    
+    // Wait for viewer
+    await expect(page.locator('.viewer-container')).toBeVisible({ timeout: 5000 });
+    
+    // Check debug panel if it exists
+    const debugPanel = page.locator('.debug-panel');
+    if (await debugPanel.isVisible()) {
+      // FileUrl should be set (starts with blob:)
+      const fileUrlText = await debugPanel.locator('text=/fileUrl:/').textContent();
+      expect(fileUrlText).toContain('blob:');
+      
+      // CurrentFile should be present
+      const currentFileText = await debugPanel.locator('text=/currentFile:/').textContent();
+      expect(currentFileText).toContain('Cube_3d_printing_sample.stl');
+    }
+  });
 });
